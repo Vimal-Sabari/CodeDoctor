@@ -28,3 +28,33 @@ make setup && python scripts/check_env.py && make test
 ### Open Issues / Next Steps
 - User needs to run `make setup && python scripts/check_env.py && make test` in WSL2 Ubuntu and report the output (especially `bitsandbytes` 4-bit NF4 and `unsloth` compatibility on `sm_120` + `cu128`).
 - Phase 2 (Data Collection) will begin after Phase 1 verification.
+
+---
+
+## Phase 2: Label Taxonomy, Data Schema, and Output Contract
+
+**Status:** Complete
+
+### What Was Done
+- Created `configs/taxonomy.yaml` with 18 frontend build failure categories (17 specific + `unknown`), each defining `id`, `description`, `typical_log_signatures` (regex hints), and `example_fix`.
+- Implemented `src/schema.py` with `ErrorCategory` (`StrEnum`), `TaxonomyEntry`, `DatasetRecord`, and `ModelOutput` Pydantic v2 models, `load_taxonomy()`, `build_model_output_schema()`, `export_model_output_schema()`, and a Typer CLI (`export-schema`, `validate`).
+- Generated `schema.json` at the repo root from `ModelOutput` with the `ErrorCategory` enum for `llama.cpp` grammar-constrained decoding.
+- Created `configs/prompts.yaml` containing `system`, `user_no_rag`, and `user_with_rag` templates, instructing the model to return `unknown` with low confidence when evidence is insufficient and to quote only verbatim log lines.
+- Added `tests/test_schema.py` covering taxonomy count/enum consistency, regex compilation, `schema.json` sync, `DatasetRecord`/`ModelOutput` validation, and `prompts.yaml` rendering.
+
+### Commands to Run
+```bash
+# Run schema and smoke tests
+python -m pytest -v
+
+# Regenerate or validate schema via CLI (in WSL2 .venv)
+python -m src.schema export-schema
+python -m src.schema --help
+```
+
+### Decisions Made
+- Kept `ErrorCategory` in `src/schema.py` strictly synchronized with `configs/taxonomy.yaml` and enforced 1-to-1 equality (including ordering) in `tests/test_schema.py`.
+- Lazy-imported `typer` inside `get_cli_app()` in `src/schema.py` so schema validation imports work even without CLI dependencies installed.
+
+### Open Issues / Next Steps
+- Awaiting Phase 3 prompt (data collection / synthetic generation).

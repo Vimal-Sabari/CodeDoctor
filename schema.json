@@ -1,0 +1,70 @@
+{
+  "$defs": {
+    "ErrorCategory": {
+      "description": "Canonical frontend build failure categories matching configs/taxonomy.yaml.",
+      "enum": [
+        "dependency_missing",
+        "version_conflict",
+        "peer_dependency_conflict",
+        "type_error",
+        "lint_error",
+        "config_error",
+        "env_missing",
+        "node_version_mismatch",
+        "oom",
+        "path_case",
+        "import_path_error",
+        "asset_missing",
+        "lockfile_mismatch",
+        "network_registry",
+        "output_dir_wrong",
+        "syntax_error",
+        "ssr_browser_api_error",
+        "unknown"
+      ],
+      "title": "ErrorCategory",
+      "type": "string"
+    }
+  },
+  "description": "Structured JSON output contract produced by the fine-tuned model.",
+  "properties": {
+    "error_category": {
+      "$ref": "#/$defs/ErrorCategory"
+    },
+    "root_cause": {
+      "minLength": 1,
+      "title": "Root Cause",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "fix_steps": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Fix Steps",
+      "type": "array"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    }
+  },
+  "required": [
+    "error_category",
+    "root_cause",
+    "fix_steps",
+    "confidence"
+  ],
+  "title": "ModelOutput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

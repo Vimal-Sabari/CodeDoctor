@@ -1,0 +1,157 @@
+# LaunchForge AI — Frontend Build Failure Error Taxonomy
+# 18 categories (17 specific + unknown)
+
+categories:
+  - id: dependency_missing
+    description: A required npm/Node package or binary is not declared in package.json or not installed in node_modules.
+    typical_log_signatures:
+      - "Cannot find module '[^']+'"
+      - "ERR_MODULE_NOT_FOUND"
+      - "Module not found: Error: Can't resolve '[^']+'"
+      - "command not found: (vite|next|tsc|eslint|webpack)"
+    example_fix: "Install the missing package with your package manager (e.g., `npm install <pkg>`) and commit updated package.json/lockfile."
+
+  - id: version_conflict
+    description: Incompatible major or minor versions between packages, plugins, or framework/compiler APIs (e.g., Next.js/React or Vite/plugin mismatch).
+    typical_log_signatures:
+      - "is not a function"
+      - "does not provide an export named"
+      - "Incompatible (React|Vite|Webpack|TypeScript) version"
+      - "Could not resolve .* version"
+    example_fix: "Align the conflicting package versions in package.json to a mutually compatible range and regenerate the lockfile."
+
+  - id: peer_dependency_conflict
+    description: Package manager failed dependency resolution due to unsatisfied or conflicting peerDependencies.
+    typical_log_signatures:
+      - "ERESOLVE unable to resolve dependency tree"
+      - "Could not resolve dependency:\\s*peer "
+      - "ERR_PNPM_PEER_DEP_ISSUES"
+      - "incorrect peer dependency"
+    example_fix: "Upgrade or pin the package causing the peer dependency mismatch, or use overrides/resolutions in package.json."
+
+  - id: type_error
+    description: TypeScript type-checking or declaration generation failed during build or tsc step.
+    typical_log_signatures:
+      - "error TS\\d{4}:"
+      - "Type '.*' is not assignable to type '.*'"
+      - "Property '.*' does not exist on type '.*'"
+      - "Cannot find name '.*'"
+    example_fix: "Fix the type mismatch or missing type declaration in the reported file and line, or install missing `@types/*` devDependencies."
+
+  - id: lint_error
+    description: ESLint, Stylelint, Prettier, or Biome check failed the CI/build pipeline.
+    typical_log_signatures:
+      - "ESLint:"
+      - "\\d+:\\d+\\s+error\\s+.*\\s+[a-z-]+/[a-z-]+"
+      - "Failed to compile\\..*eslint"
+      - "biome check"
+    example_fix: "Resolve the reported lint violations in the flagged files or run the project's lint-fix script."
+
+  - id: config_error
+    description: Invalid, malformed, or incompatible build/framework configuration (next.config, vite.config, tsconfig.json, webpack.config, tailwind.config).
+    typical_log_signatures:
+      - "Invalid (next|vite)\\.config"
+      - "Error parsing tsconfig\\.json"
+      - "Configuration Error"
+      - "ValidationError: Invalid configuration object"
+    example_fix: "Correct the invalid option, syntax, or schema in the referenced configuration file."
+
+  - id: env_missing
+    description: Required environment variable (e.g., NEXT_PUBLIC_*, VITE_*, API keys) is undefined or failed schema validation at build time.
+    typical_log_signatures:
+      - "Missing required environment variable"
+      - "Environment variable .* is not set"
+      - "NEXT_PUBLIC_.* is undefined"
+      - "Invalid environment variables:"
+    example_fix: "Define the missing environment variable in `.env` or your CI/build environment and re-run the build."
+
+  - id: node_version_mismatch
+    description: Active Node.js version does not satisfy `engines.node` or uses unsupported/removed Node APIs.
+    typical_log_signatures:
+      - "The engine \"node\" is incompatible with this module"
+      - "error .* Expected version \".*\"\\. Got \"v?\\d+"
+      - "ERR_OSSL_EVP_UNSUPPORTED"
+      - "Unsupported Node\\.js version"
+    example_fix: "Switch to the Node.js version specified in `.nvmrc` or `package.json` `engines.node` (e.g., via `nvm use`)."
+
+  - id: oom
+    description: Build process ran out of heap or system memory (JavaScript heap out of memory or SIGKILL 137).
+    typical_log_signatures:
+      - "FATAL ERROR: (Ineffective mark-compacts|Reached heap limit) Allocation failed - JavaScript heap out of memory"
+      - "Killed\\s*$"
+      - "Exit code 137"
+      - "SIGKILL"
+    example_fix: "Increase Node heap limit (`NODE_OPTIONS=--max-old-space-size=4096`) or reduce build parallelism/source map memory usage."
+
+  - id: path_case
+    description: Case-sensitivity mismatch in file/import paths (works on Windows/macOS, fails on Linux CI).
+    typical_log_signatures:
+      - "ENOENT: no such file or directory"
+      - "Module not found: Error: Can't resolve '\\./"
+      - "There are multiple modules with names that only differ in casing"
+      - "Already included file name .* differs from file name .* only in casing"
+    example_fix: "Match the exact filesystem casing of the target file/directory in the import statement."
+
+  - id: import_path_error
+    description: Broken relative path, misconfigured path alias (`@/*`), or ESM/CJS subpath export resolution failure.
+    typical_log_signatures:
+      - "Package subpath '.*' is not defined by \"exports\""
+      - "Module not found: Error: Can't resolve '@/"
+      - "ERR_PACKAGE_PATH_NOT_EXPORTED"
+      - "Relative import path .* not prefixed with"
+    example_fix: "Fix the relative path or verify `tsconfig.json` `paths` and bundler alias configuration."
+
+  - id: asset_missing
+    description: Referenced static asset, CSS, font, image, or public file does not exist at the expected path.
+    typical_log_signatures:
+      - "ENOENT: no such file or directory, open '.*\\.(png|jpg|jpeg|svg|webp|woff2?|css|json)'"
+      - "Failed to resolve import \".*\\.(css|scss|svg|png)\""
+      - "Could not load .*\\.(css|scss|svg|png)"
+    example_fix: "Add the missing asset to the expected directory or update the reference path in code/CSS."
+
+  - id: lockfile_mismatch
+    description: Lockfile is out of sync with package.json during frozen/ci install (`npm ci`, `pnpm install --frozen-lockfile`, `yarn --frozen-lockfile`).
+    typical_log_signatures:
+      - "ERR_PNPM_OUTDATED_LOCKFILE"
+      - "can only install packages when your package\\.json and package-lock\\.json .* are in sync"
+      - "Your lockfile needs to be updated, but yarn is run with `--frozen-lockfile`"
+    example_fix: "Run the package manager install locally to update the lockfile and commit it alongside `package.json`."
+
+  - id: network_registry
+    description: Network timeout, DNS failure, TLS error, or HTTP 401/403/404/5xx when fetching packages or binaries from a registry.
+    typical_log_signatures:
+      - "ETIMEDOUT|ECONNRESET|ENOTFOUND|EAI_AGAIN"
+      - "ERR_PNPM_FETCH_404|E404 Not Found"
+      - "401 Unauthorized|403 Forbidden"
+      - "unable to verify the first certificate"
+    example_fix: "Check registry URL, authentication token (`.npmrc`), proxy/TLS settings, and retry after verifying network connectivity."
+
+  - id: output_dir_wrong
+    description: Build completed or failed because the configured output/dist directory or entry artifact is missing or mismatched.
+    typical_log_signatures:
+      - "No Output Directory named \".*\" found"
+      - "ENOENT: no such file or directory, stat '.*(dist|build|\\.next|out)'"
+      - "Could not find a production build in the '\\.next' directory"
+    example_fix: "Align the build output directory setting (`outDir`, `distDir`, or framework config) with the expected artifact path."
+
+  - id: syntax_error
+    description: JavaScript, TypeScript, JSX/TSX, CSS, or JSON syntax/parse error during bundling or transpilation.
+    typical_log_signatures:
+      - "SyntaxError:"
+      - "Unexpected token"
+      - "Transform failed with \\d+ error"
+      - "CssSyntaxError:"
+    example_fix: "Fix the syntax or parsing error at the reported file, line, and column."
+
+  - id: ssr_browser_api_error
+    description: Server-side rendering or static prerendering failed because browser-only globals (`window`, `document`, `localStorage`) were accessed at build/SSR time.
+    typical_log_signatures:
+      - "ReferenceError: (window|document|navigator|localStorage|sessionStorage) is not defined"
+      - "Error occurred prerendering page"
+      - "Hydration failed"
+    example_fix: "Guard browser-only APIs with `typeof window !== 'undefined'`, move them into `useEffect`, or dynamically import with `ssr: false`."
+
+  - id: unknown
+    description: Insufficient or ambiguous log evidence to confidently classify the root cause into a known category.
+    typical_log_signatures: []
+    example_fix: "Inspect the full CI build log with verbose output enabled to capture the underlying error message and stack trace."
