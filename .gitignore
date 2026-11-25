@@ -1,0 +1,69 @@
+# Python & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Datasets & knowledge base artifacts (keep directory placeholders)
+data/raw/*
+!data/raw/.gitkeep
+data/synthetic/*
+!data/synthetic/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/gold/*
+!data/gold/.gitkeep
+knowledge_base/*
+!knowledge_base/.gitkeep
+
+# Model weights, adapters, GGUF exports, and checkpoints
+models/adapters/*
+!models/adapters/.gitkeep
+models/merged/*
+!models/merged/.gitkeep
+models/gguf/*
+!models/gguf/.gitkeep
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.gguf
+checkpoints/
+outputs/
+wandb/
+
+# Generated reports & vector store databases
+reports/*
+!reports/.gitkeep
+chroma_db/
+*.db
+*.sqlite3
+
+# Local llama.cpp checkout/build if placed inside workspace
+llama.cpp/
+
+# OS & editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
