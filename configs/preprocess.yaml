@@ -1,0 +1,37 @@
+# LaunchForge AI — Preprocessing Pipeline Configuration
+
+inputs:
+  synthetic_jsonl: "data/synthetic/synthetic_failures.jsonl"
+  raw_globs:
+    - "data/raw/*.jsonl"
+
+outputs:
+  processed_dir: "data/processed"
+  train_jsonl: "data/processed/train.jsonl"
+  val_jsonl: "data/processed/val.jsonl"
+  test_jsonl: "data/processed/test.jsonl"
+  unverified_csv: "data/processed/unverified_review.csv"
+  split_report: "reports/split_report.md"
+  stats_report: "reports/data_stats.md"
+
+taxonomy_path: "configs/taxonomy.yaml"
+
+window:
+  context_before: 40
+  context_after: 40
+  tail_lines: 60
+  max_tokens: 1500
+  tokenizer_name: "Qwen/Qwen3-4B-Instruct-2507"
+
+dedupe:
+  minhash_num_perm: 128
+  jaccard_threshold: 0.85
+  max_per_signature: 15
+  shingle_k: 3
+
+split:
+  seed: 42
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+  held_out_repos: []

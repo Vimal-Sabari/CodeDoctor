@@ -126,3 +126,37 @@ python -m src.collect.public_datasets /path/to/logchunks.jsonl
 
 ### Open Issues / Next Steps
 - Run live collection commands when ready, then proceed to Phase 5 (preprocessing & dataset formatting).
+
+---
+
+## Phase 5: Preprocessing Pipeline (`src/preprocess/`)
+
+**Status:** Complete
+
+### What Was Done
+- Created `configs/preprocess.yaml` holding input/output paths, windowing parameters (`context_before: 40`, `context_after: 40`, `tail_lines: 60`, `max_tokens: 1500`, `Qwen/Qwen3-4B-Instruct-2507`), MinHash dedupe settings, and repo-level split ratios.
+- Updated `pyproject.toml` with a `preprocess` extra (`detect-secrets`, `datasketch`).
+- Implemented composable preprocessing modules:
+  - `src/preprocess/clean.py`: ANSI & timestamp stripping, progress-bar/repeated-line collapsing, plus separate signature normalization.
+  - `src/preprocess/window.py`: first-error +/-40 + tail 60 windowing with `[... N lines omitted ...]` markers and hard `max_tokens` cap (using cached Qwen tokenizer or deterministic fallback).
+  - `src/preprocess/redact.py`: `detect-secrets` integration + regex redaction for tokens, AWS keys, JWTs, emails, IPs, and internal/auth URLs.
+  - `src/preprocess/signature.py`: normalized error signature + short hash.
+  - `src/preprocess/dedupe.py`: MinHash (`datasketch` or pure-Python fallback) near-duplicate removal + per-signature count cap.
+  - `src/preprocess/label.py`: taxonomy regex heuristic pre-labeling for non-synthetic records (`verified=false`) + `unverified_review.csv` export.
+  - `src/preprocess/split.py`: deterministic 80/10/10 repo-grouped split with held-out repo support, zero-overlap assertion, and `reports/split_report.md`.
+  - `src/preprocess/stats.py`: `reports/data_stats.md` generator (class distribution, token-length histogram, per-source, per-framework).
+  - `src/preprocess/run.py`: unified Typer CLI `python -m src.preprocess.run`.
+- Added `tests/test_preprocess.py` covering secret redaction, token budget, dedupe caps, zero-overlap repo splitting, and end-to-end execution.
+
+### Commands to Run
+```bash
+# Run preprocessing pipeline (after collecting raw/synthetic data)
+python -m src.preprocess.run
+```
+
+### Decisions Made
+- Provided deterministic pure-Python fallbacks for `datasketch` and `AutoTokenizer` (local cache) so unit tests and offline environments run cleanly while using the full libraries when installed/cached.
+
+### Open Issues / Next Steps
+- Install `.[preprocess]` in WSL2 (`pip install -e ".[preprocess,dev]"`) before running large-scale preprocessing.
+- Ready for Phase 6 (training or RAG) when prompted.
