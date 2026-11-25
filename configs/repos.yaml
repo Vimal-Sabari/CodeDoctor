@@ -1,0 +1,126 @@
+# LaunchForge AI — Candidate Public Frontend Repositories for Fault Injection
+#
+# NOTE: All entries below are real public repositories/monorepos, marked `verified: false`
+# with `commit: VERIFY_SHA` until you confirm the exact commit SHA and clean build command
+# in your local Docker environment.
+
+repos:
+  - id: vite-react-ts-starter
+    url: https://github.com/vitejs/vite.git
+    subdir: packages/create-vite/template-react-ts
+    commit: VERIFY_SHA
+    framework: vite-react
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify latest main SHA and that template-react-ts builds standalone."
+
+  - id: vite-vue-ts-starter
+    url: https://github.com/vitejs/vite.git
+    subdir: packages/create-vite/template-vue-ts
+    commit: VERIFY_SHA
+    framework: vue
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify latest main SHA and standalone build."
+
+  - id: vite-svelte-ts-starter
+    url: https://github.com/vitejs/vite.git
+    subdir: packages/create-vite/template-svelte-ts
+    commit: VERIFY_SHA
+    framework: svelte
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify latest main SHA and standalone build."
+
+  - id: nextjs-with-typescript
+    url: https://github.com/vercel/next.js.git
+    subdir: examples/with-typescript
+    commit: VERIFY_SHA
+    framework: nextjs
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify canary/main SHA and Next.js example standalone build."
+
+  - id: nextjs-with-tailwindcss
+    url: https://github.com/vercel/next.js.git
+    subdir: examples/with-tailwindcss
+    commit: VERIFY_SHA
+    framework: nextjs
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify canary/main SHA and Next.js Tailwind example standalone build."
+
+  - id: sveltekit-realworld
+    url: https://github.com/sveltejs/realworld.git
+    subdir: ""
+    commit: VERIFY_SHA
+    framework: svelte
+    package_manager: pnpm
+    node_version: "20"
+    install_cmd: "pnpm install --frozen-lockfile"
+    build_cmd: "pnpm build"
+    verified: false
+    notes: "Verify commit SHA and whether pnpm/npm is used."
+
+  - id: vue-create-vue-template
+    url: https://github.com/vuejs/create-vue.git
+    subdir: template/base
+    commit: VERIFY_SHA
+    framework: vue
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify if template/base is directly buildable or needs create-vue scaffolding."
+
+  - id: angular-quickstart-example
+    url: https://github.com/angular/angular.git
+    subdir: adev/src/content/examples/first-app-lesson-00
+    commit: VERIFY_SHA
+    framework: angular
+    package_manager: npm
+    node_version: "20"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "Verify Angular example path and standalone ng build."
+
+  - id: cra-template-typescript
+    url: https://github.com/facebook/create-react-app.git
+    subdir: packages/cra-template-typescript/template
+    commit: VERIFY_SHA
+    framework: cra
+    package_manager: npm
+    node_version: "18"
+    install_cmd: "npm install"
+    build_cmd: "npm run build"
+    verified: false
+    notes: "CRA is legacy; verify Node 18 compatibility and package.json presence."
+
+  - id: astro-basics-starter
+    url: https://github.com/withastro/astro.git
+    subdir: examples/basics
+    commit: VERIFY_SHA
+    framework: astro
+    package_manager: pnpm
+    node_version: "20"
+    install_cmd: "pnpm install"
+    build_cmd: "pnpm build"
+    verified: false
+    notes: "Verify Astro basics example standalone build."

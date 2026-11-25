@@ -58,3 +58,38 @@ python -m src.schema --help
 
 ### Open Issues / Next Steps
 - Awaiting Phase 3 prompt (data collection / synthetic generation).
+
+---
+
+## Phase 3: Synthetic Failure Generation (Fault Injector)
+
+**Status:** Complete (initial 3 faults + dry-run verified; awaiting user repo SHA verification & small-batch Docker run)
+
+### What Was Done
+- Created `configs/repos.yaml` with 10 real public frontend template/starter candidates (Vite+React, Vue, Svelte, Next.js, Angular, CRA, Astro), all marked `verified: false` with `commit: VERIFY_SHA` for user verification.
+- Created `configs/fault_injector.yaml` holding all paths, Docker limits (`memory_limit: 4g`, `timeout_sec: 300`, `max_containers: 2`), `seed: 42`, and `enabled_faults`.
+- Built `src/collect/fault_injector/faults.py` with an extensible `BaseFault` ABC + `@register_fault` registry and 3 initial end-to-end faults:
+  - `remove_dependency` (`dependency_missing`)
+  - `wrong_import_path` (`import_path_error`)
+  - `ts_type_error` (`type_error`)
+- Built `src/collect/fault_injector/docker_runner.py` (`clone_repo`, `verify_baseline`, `run_docker_build` with `CI=true`, memory cap, and timeout).
+- Built `src/collect/fault_injector/runner.py` (Typer CLI) with deterministic per-pair seeds, baseline verification, parallelism capped at 2 containers, resumable `manifest.json`, JSONL output (`data/synthetic/synthetic_failures.jsonl`), and `--dry-run`.
+- Added `tests/test_fault_injector.py` with unit tests for all 3 faults and a mocked-Docker end-to-end test covering dry-run, JSONL output, and resumability.
+- Updated `Makefile` `data` target to run `python -m src.collect.fault_injector.runner --dry-run`.
+
+### Commands to Run
+```bash
+# 1. Dry-run (no Docker, no cloning)
+python -m src.collect.fault_injector.runner --dry-run --limit 6
+
+# 2. Small-batch live generation in WSL2 (after verifying 1+ repo SHA in configs/repos.yaml and Docker is running)
+python -m src.collect.fault_injector.runner --repo vite-react-ts-starter --limit 3
+```
+
+### Decisions Made
+- Implemented 3 faults end-to-end first as requested (`remove_dependency`, `wrong_import_path`, `ts_type_error`), with `FAULT_REGISTRY` ready for the remaining 7 faults (`import_case_mismatch`, `eslint_ci_error`, `lockfile_mismatch`, `wrong_node_version`, `missing_env_var`, `bad_config_key`, `wrong_output_dir`).
+- Marked all candidate repos `verified: false` and `commit: VERIFY_SHA` so no unverified commit SHAs are fabricated.
+
+### Open Issues / Next Steps
+- Verify commit SHAs and standalone build commands in `configs/repos.yaml` and run a small-batch Docker generation.
+- Implement the remaining 7 faults in `src/collect/fault_injector/faults.py` when ready to scale data generation.

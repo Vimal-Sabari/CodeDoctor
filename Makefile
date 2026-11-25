@@ -13,7 +13,7 @@ lint:
 	$(PYTHON) -m ruff check src tests scripts
 
 data:
-	@echo "Data pipeline not yet implemented (scheduled for Phase 2)."
+	$(PYTHON) -m src.collect.fault_injector.runner --dry-run
 
 train:
 	@echo "Training pipeline not yet implemented (scheduled for Phase 4)."

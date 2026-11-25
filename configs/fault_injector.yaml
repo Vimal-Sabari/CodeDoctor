@@ -1,0 +1,22 @@
+# LaunchForge AI — Fault Injector Configuration
+
+repos_config: "configs/repos.yaml"
+output_dir: "data/synthetic"
+output_jsonl: "data/synthetic/synthetic_failures.jsonl"
+manifest_path: "data/synthetic/manifest.json"
+cache_dir: "data/raw/repos_cache"
+logs_dir: "data/raw/fault_logs"
+
+seed: 42
+
+docker:
+  image_template: "node:{node_version}-slim"
+  memory_limit: "4g"
+  timeout_sec: 300
+  max_containers: 2
+
+# Initial 3 faults implemented end-to-end in Phase 3
+enabled_faults:
+  - remove_dependency
+  - wrong_import_path
+  - ts_type_error
