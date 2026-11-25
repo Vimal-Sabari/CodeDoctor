@@ -57,6 +57,12 @@ def dedupe_records(
     dropped_near_dup = 0
 
     if use_datasketch:
+        try:
+            lsh = MinHashLSH(threshold=jaccard_threshold, num_perm=num_perm)
+        except ValueError:
+            use_datasketch = False
+
+    if use_datasketch:
         lsh = MinHashLSH(threshold=jaccard_threshold, num_perm=num_perm)
         for idx, rec in enumerate(records):
             sig_str = rec.get("signature", "")

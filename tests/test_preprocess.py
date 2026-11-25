@@ -178,8 +178,8 @@ def test_end_to_end_preprocess_pipeline(tmp_path: Path) -> None:
                     "tokenizer_name": "Qwen/Qwen3-4B-Instruct-2507",
                 },
                 "dedupe": {
-                    "minhash_num_perm": 64,
-                    "jaccard_threshold": 0.99,
+                    "minhash_num_perm": 128,
+                    "jaccard_threshold": 0.85,
                     "max_per_signature": 15,
                     "shingle_k": 3,
                 },

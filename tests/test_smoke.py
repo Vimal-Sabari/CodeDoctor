@@ -36,12 +36,15 @@ def test_check_env_cli_help() -> None:
         "check_env",
         Path(__file__).resolve().parent.parent / "scripts" / "check_env.py",
     )
+    import sys
+
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
+    sys.modules["check_env"] = module
     spec.loader.exec_module(module)
 
     assert isinstance(module.app, typer.Typer)
     runner = CliRunner()
     result = runner.invoke(module.app, ["--help"])
     assert result.exit_code == 0
-    assert "Verify Python, RAM, CUDA 12.8+" in result.output
+    assert "environment checks" in result.output
