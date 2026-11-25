@@ -19,7 +19,7 @@ data-check:
 	$(PYTHON) -m src.preprocess.validate
 
 train:
-	@echo "Training pipeline not yet implemented (scheduled for Phase 4)."
+	$(PYTHON) -m src.train.sft --dry-run
 
 eval:
 	$(PYTHON) -m src.eval.run_eval --model qwen3_4b_instruct --split gold

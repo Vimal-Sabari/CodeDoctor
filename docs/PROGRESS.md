@@ -222,3 +222,36 @@ python -m src.eval.run_eval --model qwen25_3b_instruct --split gold
 
 ### Open Issues / Next Steps
 - Run the 3 zero-shot baselines in WSL2 after populating `data/gold/gold.jsonl`, then proceed to Phase 8 (QLoRA fine-tuning or RAG) when prompted.
+
+---
+
+## Phase 8: QLoRA Training and Adapter Merge
+
+**Status:** Complete (masking & config tests passing; ready for user dry-run on WSL2 RTX 5050)
+
+### What Was Done
+- Created `configs/train.yaml` with 4-bit NF4 double-quant (`bfloat16`), LoRA (`r=16`, `alpha=32`, `dropout=0.05`, all 7 linear modules), `max_seq_length: 3072`, `per_device_train_batch_size: 1`, `gradient_accumulation_steps: 16`, cosine LR `1.5e-4`, `warmup_ratio: 0.03`, `paged_adamw_8bit`, `gradient_checkpointing: true`, `packing: false`, and `dry_run_max_steps: 10` / `dry_run_max_examples: 20`.
+- Implemented `src/train/masking.py` (`tokenize_and_mask_assistant`, `pad_sft_batch`) to mask system and user tokens with `-100` so loss is computed on assistant tokens only.
+- Implemented `src/train/sft.py` (Typer CLI) loading via Unsloth with automatic fallback to HF Transformers + PEFT, val evaluation + early stopping, TensorBoard (and optional W&B), checkpoint resume, peak VRAM / tokens/s / step-time logging, `run_summary.json`, and `--dry-run`.
+- Implemented `src/train/merge.py` (Typer CLI) for memory-safe `bfloat16` sharded adapter merging into `models/merged/<run>` without loading full `fp32` weights on CPU.
+- Wrote `docs/TRAINING.md` with the exact OOM reduction order (seq length -> LoRA rank -> 3B model) and updated `Makefile` (`train` target).
+- Added `tests/test_train.py` verifying assistant-only token masking and `configs/train.yaml` hyperparameters.
+
+### Commands to Run (in WSL2 RTX 5050)
+```bash
+# Dry-run (10 steps on 20 examples)
+python -m src.train.sft --dry-run
+
+# Full QLoRA training
+python -m src.train.sft
+
+# Merge best adapter
+python -m src.train.merge
+```
+
+### Decisions Made
+- Separated `src/train/masking.py` from `sft.py` so assistant-only label masking can be unit-tested deterministically without GPU/Unsloth dependencies.
+
+### Open Issues / Next Steps
+- User to run `python -m src.train.sft --dry-run` in WSL2 once `train_chat.jsonl` / `val_chat.jsonl` are generated.
+- Ready for Phase 9 (RAG pipeline) when prompted.
