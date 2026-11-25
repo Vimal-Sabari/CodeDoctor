@@ -1,0 +1,41 @@
+# LaunchForge AI — Real-World Data Collection Configuration
+
+github_actions:
+  queries:
+    - "language:TypeScript topic:vite"
+    - "language:TypeScript topic:nextjs"
+    - "language:JavaScript topic:react"
+  min_stars: 500
+  permissive_licenses:
+    - "MIT"
+    - "Apache-2.0"
+    - "BSD-2-Clause"
+    - "BSD-3-Clause"
+    - "ISC"
+    - "MPL-2.0"
+  max_repos: 20
+  max_runs_per_repo: 5
+  output_jsonl: "data/raw/github_actions.jsonl"
+  cache_dir: "data/raw/cache/github_actions"
+  manifest_path: "data/raw/github_actions_manifest.json"
+  request_timeout_sec: 30
+  max_retries: 5
+  api_base_url: "https://api.github.com"
+
+stackexchange:
+  tags:
+    - "webpack"
+    - "vite"
+    - "npm"
+    - "next.js"
+    - "typescript"
+  min_score: 5
+  require_accepted_answer: true
+  license: "CC BY-SA 4.0"
+  site_base_url: "https://stackoverflow.com/questions"
+  output_jsonl: "data/raw/stackexchange.jsonl"
+
+public_datasets:
+  output_jsonl: "data/raw/public_ci_logs.jsonl"
+  supported_datasets:
+    - "logchunks"

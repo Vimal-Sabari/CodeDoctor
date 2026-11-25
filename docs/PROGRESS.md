@@ -93,3 +93,36 @@ python -m src.collect.fault_injector.runner --repo vite-react-ts-starter --limit
 ### Open Issues / Next Steps
 - Verify commit SHAs and standalone build commands in `configs/repos.yaml` and run a small-batch Docker generation.
 - Implement the remaining 7 faults in `src/collect/fault_injector/faults.py` when ready to scale data generation.
+
+---
+
+## Phase 4: Real-World Data Collection Scripts
+
+**Status:** Complete (offline fixture tests passing; no live scraping run)
+
+### What Was Done
+- Created `configs/collect.yaml` holding all collection queries, star thresholds, permissive license allowlist, Stack Exchange tags/license, and `data/raw/` output paths.
+- Added `src/collect/common.py` defining `RawLogRecord` and append-only `append_raw_records()` so raw JSONL files are never modified after writing.
+- Implemented `src/collect/github_actions.py` (Typer CLI) to search public frontend repos, skip repos without permissive licenses, download failed job logs with `GITHUB_TOKEN` from `.env`, cache raw responses under `data/raw/cache/github_actions/`, back off on `403`/`429` rate-limit headers, and resume via manifest.
+- Implemented `src/collect/stackexchange.py` (Typer CLI) to stream-parse Stack Exchange `Posts.xml` dumps (`iterparse`), filter for frontend build-error questions with accepted answers, and preserve attribution (`post_url`, `author`, `answer_author`, `CC BY-SA 4.0`).
+- Implemented `src/collect/public_datasets.py` (Typer CLI) as an optional loader stub (`BasePublicDatasetLoader`, `LogChunksLoader`).
+- Added `tests/test_collect.py` with recorded offline fixtures (zero network calls).
+
+### Commands to Run Yourself (Expected Runtime)
+```bash
+# 1. GitHub Actions collector (requires GITHUB_TOKEN in .env; ~2-5 min for 20 repos)
+python -m src.collect.github_actions
+
+# 2. Stack Exchange dump parser (after downloading Posts.xml; ~1-3 min for subset, ~15-30 min for full SO dump)
+python -m src.collect.stackexchange /path/to/Posts.xml --limit 500
+
+# 3. Optional LogChunks loader (seconds for local JSONL export)
+python -m src.collect.public_datasets /path/to/logchunks.jsonl
+```
+
+### Decisions Made
+- Used Python's standard-library `urllib.request` behind an injectable `HttpClient` protocol in `github_actions.py` so both live collection and offline fixture testing work without extra HTTP dependencies.
+- Used two-pass `xml.etree.ElementTree.iterparse` in `stackexchange.py` to keep memory usage bounded well within the 12 GB WSL2 cap.
+
+### Open Issues / Next Steps
+- Run live collection commands when ready, then proceed to Phase 5 (preprocessing & dataset formatting).
