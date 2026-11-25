@@ -1,7 +1,7 @@
 PYTHON ?= python3
 PIP ?= pip
 
-.PHONY: setup test lint data train eval serve
+.PHONY: setup test lint data data-check train eval serve
 
 setup:
 	$(PIP) install -e ".[dev]"
@@ -14,6 +14,9 @@ lint:
 
 data:
 	$(PYTHON) -m src.collect.fault_injector.runner --dry-run
+
+data-check:
+	$(PYTHON) -m src.preprocess.validate
 
 train:
 	@echo "Training pipeline not yet implemented (scheduled for Phase 4)."

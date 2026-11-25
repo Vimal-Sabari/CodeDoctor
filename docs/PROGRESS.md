@@ -160,3 +160,35 @@ python -m src.preprocess.run
 ### Open Issues / Next Steps
 - Install `.[preprocess]` in WSL2 (`pip install -e ".[preprocess,dev]"`) before running large-scale preprocessing.
 - Ready for Phase 6 (training or RAG) when prompted.
+
+---
+
+## Phase 6: Gold Evaluation Set and Dataset Quality Gates
+
+**Status:** Complete
+
+### What Was Done
+- Updated `configs/preprocess.yaml` with `gold`, `validation` (`max_class_share: 0.20`), and `chat` (`prompts_path`, `train_chat_jsonl`, `val_chat_jsonl`) settings.
+- Implemented `src/preprocess/gold_tool.py` (Typer CLI): stratified sampling across categories prioritizing real (non-synthetic) logs, interactive confirm/edit/skip/quit loop, resumable saving to `data/gold/gold.jsonl` with `verified=true`.
+- Implemented `src/preprocess/validate.py` (Typer CLI): hard quality gates checking zero repo overlap, <=20% max class share in train, `DatasetRecord` schema validity, zero leaked secrets, no train IDs in gold set, and `max_tokens` cap.
+- Implemented `src/preprocess/to_chat.py` (Typer CLI): converts train/val splits into no-RAG `system/user/assistant` chat SFT JSONL using `configs/prompts.yaml` with strict `ModelOutput` JSON targets.
+- Added `data-check` target to `Makefile` running `python -m src.preprocess.validate`.
+- Added `tests/test_gold_and_validate.py` testing stratified sampling, resumability, all 6 validation gates, and chat SFT conversion.
+
+### Commands to Run
+```bash
+# Run quality gates
+make data-check
+
+# Build/resume the 300-example gold evaluation set interactively
+python -m src.preprocess.gold_tool
+
+# Convert train/val splits to no-RAG chat SFT JSONL
+python -m src.preprocess.to_chat
+```
+
+### Decisions Made
+- Kept `to_chat.py` strictly on `user_no_rag` for Phase 6 as requested; RAG-augmented prompt conversion will be added alongside the RAG pipeline.
+
+### Open Issues / Next Steps
+- Ready for Phase 7 (QLoRA fine-tuning or RAG indexing) when prompted.

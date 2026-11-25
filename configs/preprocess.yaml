@@ -35,3 +35,16 @@ split:
   val_ratio: 0.1
   test_ratio: 0.1
   held_out_repos: []
+
+gold:
+  sample_size: 300
+  gold_jsonl: "data/gold/gold.jsonl"
+  seed: 42
+
+validation:
+  max_class_share: 0.20
+
+chat:
+  prompts_path: "configs/prompts.yaml"
+  train_chat_jsonl: "data/processed/train_chat.jsonl"
+  val_chat_jsonl: "data/processed/val_chat.jsonl"
