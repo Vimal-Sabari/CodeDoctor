@@ -1,0 +1,39 @@
+# LaunchForge AI — Evaluation & Zero-Shot Baseline Configuration
+
+prompts_path: "configs/prompts.yaml"
+schema_path: "schema.json"
+reports_dir: "reports"
+
+splits:
+  gold: "data/gold/gold.jsonl"
+  test: "data/processed/test.jsonl"
+  val: "data/processed/val.jsonl"
+
+inference:
+  batch_size: 1
+  max_new_tokens: 512
+  temperature: 0.0
+  rag_enabled: false
+
+baselines:
+  qwen3_4b_instruct:
+    backend: "hf_4bit"
+    model_id: "Qwen/Qwen3-4B-Instruct-2507"
+    description: "Primary base model (Qwen3-4B-Instruct 2507, 4-bit NF4)"
+
+  qwen25_coder_3b:
+    backend: "hf_4bit"
+    model_id: "Qwen/Qwen2.5-Coder-3B-Instruct"
+    description: "Code-specialized 3B baseline (4-bit NF4)"
+
+  qwen25_3b_instruct:
+    backend: "hf_4bit"
+    model_id: "Qwen/Qwen2.5-3B-Instruct"
+    description: "General 3B instruct baseline (4-bit NF4)"
+
+  llama_server_local:
+    backend: "llama_server"
+    base_url: "http://127.0.0.1:8080"
+    model_id: "local-gguf"
+    use_json_schema: true
+    description: "Local llama.cpp llama-server OpenAI-compatible endpoint"

@@ -192,3 +192,33 @@ python -m src.preprocess.to_chat
 
 ### Open Issues / Next Steps
 - Ready for Phase 7 (QLoRA fine-tuning or RAG indexing) when prompted.
+
+---
+
+## Phase 7: Evaluation Harness and Zero-Shot Baselines
+
+**Status:** Complete (offline metric & mock-backend tests passing; GPU baselines ready to run)
+
+### What Was Done
+- Created `configs/eval.yaml` with `batch_size: 1` settings and zero-shot baseline definitions for `qwen3_4b_instruct` (`Qwen/Qwen3-4B-Instruct-2507`), `qwen25_coder_3b` (`Qwen/Qwen2.5-Coder-3B-Instruct`), `qwen25_3b_instruct` (`Qwen/Qwen2.5-3B-Instruct`), and `llama_server_local`.
+- Implemented `src/eval/metrics.py` computing category accuracy, macro-F1, per-class precision/recall/F1/support, JSON validity rate, root-cause entity match, verbatim evidence hallucination rate, confidence calibration + `unknown` when wrong, and latency percentiles.
+- Implemented `src/eval/backends.py` with `ModelBackend` ABC and 3 backends: `HF4BitBackend` (4-bit NF4 `BitsAndBytesConfig`, `low_cpu_mem_usage=True`, `batch_size=1`), `LlamaServerBackend` (OpenAI-compatible HTTP + JSON Schema support), and `MockBackend`.
+- Implemented `src/eval/run_eval.py` (Typer CLI) saving `reports/*_predictions.jsonl` and `reports/*_metrics.json` and printing a markdown summary table.
+- Updated `Makefile` (`eval` target) and added `tests/test_eval.py`.
+
+### Commands to Run Baselines (in WSL2 RTX 5050)
+```bash
+# Run unit tests first
+python -m pytest -v
+
+# Zero-shot baselines on the gold set (batch_size=1, 4-bit NF4)
+python -m src.eval.run_eval --model qwen3_4b_instruct --split gold
+python -m src.eval.run_eval --model qwen25_coder_3b --split gold
+python -m src.eval.run_eval --model qwen25_3b_instruct --split gold
+```
+
+### Decisions Made
+- Implemented all classification/F1/entity/hallucination/calibration metrics in pure Python to avoid extra heavy evaluation dependencies.
+
+### Open Issues / Next Steps
+- Run the 3 zero-shot baselines in WSL2 after populating `data/gold/gold.jsonl`, then proceed to Phase 8 (QLoRA fine-tuning or RAG) when prompted.

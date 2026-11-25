@@ -22,7 +22,7 @@ train:
 	@echo "Training pipeline not yet implemented (scheduled for Phase 4)."
 
 eval:
-	@echo "Evaluation pipeline not yet implemented (scheduled for Phase 5)."
+	$(PYTHON) -m src.eval.run_eval --model qwen3_4b_instruct --split gold
 
 serve:
 	@echo "Serving pipeline not yet implemented (scheduled for Phase 6)."
